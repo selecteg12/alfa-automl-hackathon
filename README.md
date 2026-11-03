@@ -1,55 +1,171 @@
-# Альфа Хакатон — автономный ML-агент
+# Alfa AutoML Agent
 
-Команда создаёт агента, который сам проходит путь **task.md → анализ данных и решение LLM → обучение/валидация → исследование → лучший submission.csv**. Две публичные задачи помогают разработке; итог оценивается на двух новых задачах.
+**From a task description to a validated submission, with an LLM directing the experiments.**
 
-**Старт команды: 23.10.2026 20:00 МСК. Внутренний дедлайн: 25.10.2026 20:00 МСК.**
+A team project from the **Alfa-Future Hackathon 2026**, combining autonomous tabular machine learning with a reproducible delivery workflow. The agent reads `task.md`, inspects the supplied data, chooses a task definition and validation strategy, trains competing models, and writes `submission.csv`.
 
-В кабинете онлайн-тур указан до 26.10 без времени закрытия. Командный график сохраняется; [правила отправки и статусы](docs/SUBMISSIONS.md).
+**49 / 226 private leaderboard · 55 / 226 public leaderboard · Python 3.12 · CPU only**
 
-## Начать работу
+## Results
 
-1. Открыть [свою вводную](docs/TEAM_CONTEXT.md) и первый блок в [маршруте](docs/EXECUTION_ORDER.md).
-2. Проверить код/данные/доступы, отметить блок «В работе» и начать реализацию.
-3. Самостоятельно выбрать подход и выполнить достаточную проверку. Сообщить результат на контрольной точке либо блокер сразу при его возникновении.
-
-В плане **14 самостоятельных блоков**: Иван — 4, Юра — 3, Егор — 3, Артём — 2, Максим — 2. Подробные шаги и промежуточные сроки внутри карточек.
-
-| Участник | Результат |
+| Measure | Result |
 | --- | --- |
-| Иван | Рабочий LLM-агент, AutoResearch, универсальность и техническая готовность финала. Основная техническая нагрузка. |
-| Юра | Полный ML-pipeline, ресурсы/устойчивость, исправления и интеграция. Второй основной технический блок. |
-| Егор | Доступы/среда/сборка, попытки платформы, чистые прогоны и сдача. |
-| Артём | Проверенные факты EDA и практические варианты новых входов. |
-| Максим | Независимые запуски, архив/ответы и воспроизводимые ошибки. |
+| Final private rank | **49th out of 226 teams** |
+| Final public rank | **55th out of 226 teams** |
+| Public score across three submissions | **15.10 → 22.43 → 24.94** |
+| Historical comparison on 12 external datasets | The newer version performed better on **9 of 12** tasks |
 
-Участник сам выбирает реализацию и разрешённые модели/параметры. Согласование нужно для несовместимого изменения общего интерфейса и новых зависимостей вне списка организаторов. Рутинные решения разрешения PM не требуют. Одного примера вызова между Иваном и Юрой достаточно; отдельный архитектурный документ не является целью.
+The submission history below shows the team's progress during the competition. Its intermediate ranks are snapshots; the final standings are shown in the platform screenshots.
 
-## Ссылки
+![Score and rank progression across three competition submissions](assets/leaderboard.png)
 
-- [Доска — личная вкладка для каждого и порядок выполнения](https://github.com/users/selecteg12/projects/2)
-- [14 рабочих блоков и маршрут](docs/EXECUTION_ORDER.md)
-- [Вводные по ролям](docs/TEAM_CONTEXT.md)
-- [Материалы и ограничения](docs/MATERIALS.md)
-- [Окружение, команды сборки ZIP и проверка запуска](docs/RUNBOOK.md)
-- [Данные и расположение файлов](docs/DATA_SETUP.md)
-- [Правила взаимодействия](docs/WORKFLOW.md)
-- [Попытки и выбор private-версии](docs/SUBMISSIONS.md)
-- [Логины/доступы](docs/ACCESS.md)
+<details>
+<summary>Final leaderboard screenshots</summary>
 
-## Контрольные результаты
+**Public leaderboard — 55th of 226 teams**
 
-- **23.10 23:00:** task.md → выданная LLM → исполняемый инструмент; ML-заглушка допустима до готовности обучения.
-- **24.10 14:00:** реальные ML-инструменты решают обе задачи; **до 15:00** первый допустимый сабмит.
-- **24.10 18:00:** исследование/лучший результат/бюджет проверены; **до 22:00** проверен перенос на новые входы.
-- **25.10 10:00:** заморозка функций и SHA; **до 16:00** два полных прогона из чистого ZIP.
-- **25.10 17:00:** финальная отправка; **до 19:30** проверка фактического статуса, дедлайн **20:00**.
+![Final public leaderboard from the competition platform](assets/leaderboard_public.png)
 
-Ночные перерывы: 24.10 01:00–09:00 и 24.10 23:00–25.10 08:00. После заморозки остаётся резерв на блокирующие исправления с проверкой.
+**Private leaderboard — 49th of 226 teams**
 
-**Для private платформа выбирает отправку с лучшим public score, при точном равенстве — последнюю такую. Последний загруженный ZIP не обязательно выбран.**
+![Final private leaderboard from the competition platform](assets/leaderboard_private.png)
 
-## Что есть в репозитории
+</details>
 
-Исходный baseline, requirements, постановки, словари и план. Готовый рабочий агент ещё предстоит реализовать; актуальное состояние проверяется по коду. Данные, модели, ключи и локальные логи в Git не добавляются.
+The improvements combined entity-level target statistics, a broader model portfolio, deeper XGBoost configurations, temporal features and fixes to grouped validation. These are historical competition results, rather than scores produced by a fresh run of this repository.
 
-Сдаётся ZIP до 100 МБ: solution.py, нужные .py и официальный requirements.txt в корне. Платформа выполняет `python3 solution.py task.md` из каталога задачи; submission.csv сохраняется там же. Порог загрузчика 128 МБ не увеличивает лимит трека 100 МБ. Документы служат работе команды; дополнительное архитектурное описание и история экспериментов не являются обязательными материалами автоматической оценки.
+## My contribution
+
+I focused on **project coordination, environment readiness and delivery**: turning the competition requirements into a working plan, defining ownership and checkpoints, preparing the runtime, and making the submission process reproducible.
+
+The concrete deliverables in this repository include:
+
+- **Environment diagnostics:** `tools/check_environment.py` checks Python and pinned dependencies, with an optional explicit API check.
+- **Submission packaging:** `tools/build_submission.py` builds a deterministic ZIP, checks the platform's flat file layout, preserves the official requirements and reports its SHA256.
+- **Release checks:** `tests/test_release_tools.py` covers archive contents, syntax, common credential patterns, filename collisions, clean extraction and preservation of a previous archive after a failed build.
+- **Clean ZIP smoke runs:** `tools/smoke_submission.py` unpacks the real submission into temporary task directories and verifies regression and multiclass predictions without API access or source-tree imports.
+- **Team workflow:** the original 14 delivery blocks, role assignments, platform constraints and submission rules remain in `docs/` and `planning/`.
+
+This was a five-person effort. Ivan developed the LLM controller and orchestration; Yura developed the ML pipeline and its reliability; Artyom worked on data analysis and input variations; Maxim performed independent checks; I coordinated delivery and prepared the environment and packaging workflow. The model results above belong to the team.
+
+## How the agent works
+
+```mermaid
+flowchart TD
+    A["task.md and task data"] --> B["Discover files and profile the data"]
+    B --> C["Save an initial safety submission"]
+    C --> D{"LLM controller"}
+    D --> E["Define targets, metric and validation"]
+    E --> F["Train, tune and compare models"]
+    F --> G["Test features and blend candidates"]
+    G --> D
+    D --> H["Refit the selected candidate"]
+    D -. "API unavailable or no useful tool calls" .-> I["Deterministic fallback search"]
+    I --> H
+    H --> J["Check schema and write submission.csv"]
+```
+
+The LLM uses the OpenAI SDK against an OpenAI-compatible endpoint. Its decisions drive real tool calls: task setup, model parameters, validation, feature experiments and model selection. Tool results feed back into the conversation so the next experiment can respond to measured performance.
+
+| Tool | Purpose |
+| --- | --- |
+| `set_task` | Select targets, identifiers, task type, metric and prediction format |
+| `evaluate` | Train and validate a model configuration |
+| `tune` | Explore configurations within the remaining budget |
+| `add_features` | Evaluate proposed feature transformations |
+| `blend` | Combine compatible candidates using out-of-fold predictions |
+| `finalize` | Refit a candidate and write its predictions |
+| `finish` | End the research loop |
+
+CatBoost, LightGBM and XGBoost form the model portfolio. The pipeline handles regression, binary and multiclass classification, label or probability outputs, and supported multiple-target schemas. Validation can account for stratification, groups and time. Target names and submission columns are inferred from the supplied task materials.
+
+The runtime saves an early answer, reserves time for final training and keeps a previously written answer if a later experiment fails. The fallback uses the same ML tools when the LLM cannot complete the loop.
+
+## Run locally
+
+Use **Python 3.12**. The official dependency list is kept in [reference/requirements.txt](reference/requirements.txt).
+
+```bash
+python3.12 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r reference/requirements.txt
+cp .env.example .env
+# Fill in the endpoint, key and model supplied for your environment.
+python solution.py /absolute/path/to/task/task.md
+```
+
+On Windows, use PowerShell:
+
+```powershell
+py -3.12 -m venv .venv
+& .\.venv\Scripts\python.exe -m pip install -r reference/requirements.txt
+Copy-Item .env.example .env
+& .\.venv\Scripts\python.exe -X utf8 solution.py C:\tasks\example\task.md
+```
+
+Pass the **path to `task.md`**, not just its directory. Data files can live in subdirectories referenced by the task. The result is written beside `task.md`.
+
+| Setting | Meaning | Default |
+| --- | --- | --- |
+| `OPENAI_API_KEY` | Credential for the supplied LLM endpoint | Required for LLM mode |
+| `OPENAI_BASE_URL` | OpenAI-compatible endpoint | Required for LLM mode |
+| `OPENAI_MODEL` | Model identifier supplied for the environment | Built-in competition model if omitted |
+| `AGENT_TIME_LIMIT` | Total runtime budget, in seconds | `10800` |
+| `AGENT_SAFETY_S` | Time reserved for final work and exit | `900` |
+| `AGENT_MAX_STEPS` | Maximum LLM dialogue steps | `40` |
+| `AGENT_LLM` | Set to `off` for an offline fallback run | `on` |
+
+For a short offline smoke run, set `AGENT_LLM=off`, `AGENT_TIME_LIMIT=300` and `AGENT_SAFETY_S=45` in the local `.env`. Keep the reserve smaller than the total budget. Offline mode checks the ML path; it does not exercise the live LLM.
+
+## Verify and package
+
+With the environment activated:
+
+```bash
+python tools/check_environment.py --full
+python -m unittest discover -s tests -v
+python tools/build_submission.py
+python tools/build_submission.py --check artifacts/solution.zip
+python tools/smoke_submission.py
+python tools/build_submission.py --check artifacts/solution.zip --extract-to tmp/clean-release
+```
+
+Use a new extraction directory for each clean check. Copy the extracted files into a separate task directory containing `task.md` and its data, then run the platform command there:
+
+```bash
+python3 solution.py task.md
+```
+
+The ZIP includes only root-level Python modules and the exact official `requirements.txt`. Documentation, tests, datasets, model files, local settings and logs stay outside it. The builder checks syntax, structure, size and common credential patterns. The smoke tool separately checks runtime imports and learned predictions on two small synthetic tasks; it does not measure performance on the competition data.
+
+Tests use synthetic data and scripted or mocked LLM responses. They cover the controller, preprocessing, task and output schemas, metrics, validation, model fitting, feature experiments, ensembling and packaging, without requiring live API access.
+
+Tests requiring the original public datasets are skipped when those files are absent. Grouped-validation correctness is always checked; set `ML_GROUP_SPLIT_MAX_SECONDS` to add a host-specific timing limit for its 50,000-row benchmark.
+
+The external-task harness in `tests/external_tasks.py` supports separate generalization experiments. It downloads datasets during preparation and keeps them outside Git. The chart below records the historical 12-task comparison; it is not a new benchmark run.
+
+![Historical comparison: the newer version won on nine tasks and the older version on three](assets/external_tasks.png)
+
+## Constraints and limitations
+
+The competition environment allowed **8 CPU cores, 32 GB RAM, 30 GB disk and up to 3 hours per task**, without a GPU. Submissions were limited to **100 MB**, and only root-level `.py` files and the supplied `requirements.txt` were copied into the task environment. The solution cannot install dependencies or download datasets during evaluation.
+
+Training uses the supplied task data. The implementation focuses on supervised tabular problems; ranking, unsupervised learning and arbitrary output schemas are not established capabilities. Results depend on the task description, validation choice and available budget. A safety submission is an availability measure and can contain constant predictions.
+
+The historical leaderboard and external-dataset results are retained as competition evidence. Local offline checks do not establish live API compatibility, Linux platform acceptance or a repeat of those scores.
+
+## Repository guide
+
+| Path | Contents |
+| --- | --- |
+| `solution.py` | Entry point, budget management, fallback and final output |
+| `agent_llm.py` | LLM client, tool-calling loop and conversation compaction |
+| `agent_tools.py` | Experiment session and agent-facing tools |
+| `ml_*.py` | Data loading, profiling, schemas, validation, models and output handling |
+| `tools/` | Environment diagnostics, ZIP builder and clean smoke runs |
+| `tests/` | ML, agent and release checks; external-task harness |
+| `assets/` | Historical charts and platform screenshots |
+| `reference/` | Organizer baseline, dependency list and public task descriptions |
+| `docs/`, `planning/` | Original team workflow, delivery blocks and competition materials |
+
+The planning documents retain the original working language and pre-implementation milestones. For the current entry point and commands, use this README and the [runbook](docs/RUNBOOK.md).

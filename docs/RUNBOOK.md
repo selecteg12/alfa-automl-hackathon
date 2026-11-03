@@ -1,99 +1,96 @@
-# Окружение, сборка и запуск — A03
+# Environment, packaging and clean runs
 
-Подготовка Егора от 23.10.2026. Доступы проверены пользователем; ключ API у Ивана. Рабочего `solution.py` пока нет. Подготовленные инструменты не реализуют ML-агента.
+Run the commands below from the repository root, using Python 3.12 and an activated virtual environment. The original competition environment was Linux; local checks on Windows do not reproduce every platform constraint.
 
-## Локальное окружение
+## Prepare the environment
 
-Команды выполнять из корня репозитория. На компьютере Егора создана `.venv` с Python 3.12.14 и установлен полный официальный `reference/requirements.txt`. Версии и доступность основных импортов проверяются командой:
-
-```powershell
-& .\.venv\Scripts\python.exe -X utf8 tools/check_environment.py --full
-& .\.venv\Scripts\python.exe -m pip check
+```bash
+python3.12 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r reference/requirements.txt
+python tools/check_environment.py --full
+python -m pip check
 ```
 
-Для повторения подготовки на этом компьютере:
+On Windows, create the environment with `py -3.12 -m venv .venv` and replace `python` in subsequent commands with `.\.venv\Scripts\python.exe`.
 
-```powershell
-& "$env:USERPROFILE\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe" -m venv .venv
-& .\.venv\Scripts\python.exe -X utf8 -m pip install -r reference/requirements.txt
+The full official dependency list is retained unchanged. It includes optional AutoML libraries and can require several gigabytes. The smaller `--install-core` profile installs only the diagnostic tool's core subset; it does not install the three boosting libraries needed for the full agent test suite.
+
+Copy `.env.example` to `.env` and fill in the supplied endpoint, key and model. The solution loads this file beside `solution.py`; the platform instead supplies environment variables. Keep credentials outside Git.
+
+An explicit API diagnostic is available:
+
+```bash
+python tools/check_environment.py --api
 ```
 
-На другой машине создать `.venv` своим установленным Python **3.12**, затем выполнить вторую команду. В Linux интерпретатор окружения находится в `.venv/bin/python`. Установка полного списка может занять несколько минут и несколько гигабайт.
+This sends one short request and can consume API budget. The diagnostic reads environment variables rather than loading `.env` itself. Ordinary dependency checks and the offline test suite do not need a live model.
 
-Для быстрой подготовки разрешён базовый набор из 11 библиотек: numpy, scipy, pandas, scikit-learn, joblib, threadpoolctl, openai, httpx, pydantic, psutil, jsonschema. Это подмножество официального списка. Его можно установить/проверить так:
+## Run the agent
 
-```powershell
-& .\.venv\Scripts\python.exe -X utf8 tools/check_environment.py --install-core
-& .\.venv\Scripts\python.exe -X utf8 tools/check_environment.py
+```bash
+python solution.py /absolute/path/to/task/task.md
 ```
 
-Версии и ограничения берутся из официального файла; он не изменяется. Локальная Windows даже с полным списком не воспроизводит Linux-контейнер платформы. Docker на этом компьютере не обнаружен. Успех проверки пакетов не означает успех решения на платформе.
+The argument is a file path. Data paths are resolved from the task materials; `submission.csv` is written next to `task.md`.
 
-## Проверка API — у Ивана
+For a short offline run, set the following in the local `.env`:
 
-Иван запускает в окружении с выданными `OPENAI_API_KEY`, `OPENAI_BASE_URL`, `OPENAI_MODEL`:
-
-```powershell
-& .\.venv\Scripts\python.exe -X utf8 tools/check_environment.py --api
+```dotenv
+AGENT_LLM=off
+AGENT_TIME_LIMIT=300
+AGENT_SAFETY_S=45
 ```
 
-Это один короткий запрос без повторов; он расходует бюджет команды. Значения переменных и тело ответа не выводятся. Обычная проверка без `--api` не обращается к модели. Здесь запрос не выполнен: выданные переменные отсутствуют, ключ находится у Ивана.
+This exercises the deterministic fallback. A live LLM run requires the supplied `OPENAI_API_KEY`, `OPENAI_BASE_URL` and model configuration.
 
-В опубликованном baseline есть импорт `mcp`, но его нет среди прямых официальных зависимостей. В подготовленной `.venv` он отсутствует. Не добавлять его в сдаваемый requirements самовольно; до первого сабмита подтвердить совместимость фактического решения с платформой. Проверенная команда платформы приведена ниже.
+## Test, build and audit
 
-## Сборка и проверка ZIP
-
-Когда Иван и Юра добавят настоящий `solution.py` и необходимые модули:
-
-```powershell
-& .\.venv\Scripts\python.exe -X utf8 tools/build_submission.py
-& .\.venv\Scripts\python.exe -X utf8 tools/build_submission.py --check artifacts/solution.zip
+```bash
+python -m unittest discover -s tests -v
+python tools/build_submission.py
+python tools/build_submission.py --check artifacts/solution.zip
+python tools/smoke_submission.py
+python tools/build_submission.py --check artifacts/solution.zip --extract-to tmp/submission-check-01
 ```
 
-Сборщик включает корневые `.py` и точную копию `reference/requirements.txt` под именем `requirements.txt`. `docs/`, `tools/`, `tests/`, `planning/`, данные, `.env`, модели и кэши в ZIP не попадают. Файл сохраняется в `artifacts/solution.zip`; каталог исключён из Git. Вывод содержит состав, размер и SHA256.
+The output directory must be new. The builder packages root-level Python files and a byte-for-byte copy of `reference/requirements.txt` named `requirements.txt`. It prints the archive size, file list and SHA256. Tests, docs, planning files, data, models, caches and `.env` are excluded.
 
-Если собственный необходимый модуль лежит в подпапке, его можно включить явно:
+The checks cover:
 
-```powershell
-& .\.venv\Scripts\python.exe -X utf8 tools/build_submission.py --module src/ml_tools.py
+- A maximum ZIP size of 100,000,000 bytes and a flat, unambiguous file layout.
+- The real `solution.py`, exact official requirements and valid Python syntax.
+- Common embedded credential patterns, without printing matched values.
+- Atomic replacement of the archive, preserving an existing package after a failed build.
+
+The credential check is heuristic. Packaging alone does not verify imports, the live API, prediction quality or platform acceptance. The separate smoke tool runs the real ZIP on synthetic regression and multiclass tasks, checks schemas and learned signal, disables API access and removes the temporary inputs afterwards. These short checks do not reproduce a full competition run.
+
+Tests needing the public competition datasets are skipped if `data/public` is absent. The 50,000-row grouped-validation test always checks partition integrity; its optional wall-clock guard uses `ML_GROUP_SPLIT_MAX_SECONDS`. Set this explicitly for a benchmark on a known host. An absolute timing threshold is not enabled in ordinary unit tests.
+
+If a required module lives below the root, it can be included explicitly:
+
+```bash
+python tools/build_submission.py --module src/helper.py
 ```
 
-Он попадёт в корень как `ml_tools.py`. Импорты сборщик не переписывает: разработчики проверяют совместимость с плоской структурой. Одинаковые имена модулей отклоняются.
+It will be stored as `helper.py`. Imports are not rewritten; filename collisions are rejected.
 
-Проверяются лимит **100 000 000 байт**, корневые имена, отсутствие лишних файлов, байты requirements, синтаксис Python и распространённые шаблоны ключей. Проверка ключей эвристическая; перед сдачей нужен просмотр состава и исходников. Сборщик не исполняет код, не проверяет его импорты, API и качество предсказаний.
+## Check the platform layout
 
-До появления `solution.py` команда сборки должна завершаться ошибкой. Заглушка под видом рабочего решения не создаётся; старый архив при неудачной пересборке сохраняется.
+Create a separate clean directory for each task. Put only the extracted Python files and `requirements.txt` there, then add `task.md` and the input data at the paths described in that file. Remove any old output before testing. Run from that directory:
 
-## Чистый запуск после появления решения
-
-```powershell
-& .\.venv\Scripts\python.exe -X utf8 tools/build_submission.py --check artifacts/solution.zip --extract-to tmp/submission-check-01
-```
-
-Каталог назначения должен быть новым. В нём будут только файлы сдаваемого ZIP. Для каждой публичной задачи подготовить отдельный чистый каталог: скопировать в него эти корневые `.py` и `requirements.txt`, добавить `task.md` и данные по относительным путям из условия. Старого `submission.csv` там быть не должно. Перейти в этот каталог и запустить команду платформы в Linux/Python 3.12 с официальными зависимостями, без импортов из исходного репозитория. В `docs/DATA_SETUP.md` описано расположение двух комплектов данных. Ожидаемый `submission.csv` проверяется рядом с соответствующим `task.md`; полный проход ещё не выполнялся.
-
-На платформе подтверждена команда:
-
-```text
+```bash
 python3 solution.py task.md
 ```
 
-Платформа копирует корневые `.py` и `requirements.txt` в каталог задачи; вложенные файлы, конфиги и сторонние пакеты не копируются. Промежуточные папки при самом запуске допустимы. Проверять нужно обе публичные задачи одной версией архива.
+Check the exit status and verify the output row count, identifiers, column order, prediction format and absence of missing values. Run without `PYTHONPATH` pointing at the source repository.
 
-## Кабинет платформы
+The original platform allowed 8 CPU cores, 32 GB RAM, 30 GB disk and three hours per task. It copied only root-level `.py` files and the official requirements from a ZIP of at most 100 MB. Intermediate directories can be created during execution.
 
-23.10 проверен [кабинет онлайн-тура](https://changellenge.com/personal/championships/stage/927270/): история пуста, доступны три попытки, команда из пяти участников собрана. Тестовых отправок при подготовке не сделано.
+Historical team planning and platform rules remain in [MATERIALS.md](MATERIALS.md) and [SUBMISSIONS.md](SUBMISSIONS.md). Their October 2026 preparation notes are historical snapshots.
 
-Лимит кейса **100 МБ**, хотя загрузчик показывает технический порог 128 МБ. Статус «Решение находится на проверке» означает очередь. Результат — оценка «Точность вычисления: …» либо ошибка.
+## Local verification — 3 November 2026
 
-В карточке хакатона онлайн-тур указан **с 19.10 до 26.10**, без времени. Командный внутренний срок **25.10 в 20:00 МСК** сохраняется. Точное время закрытия платформы и допустимость завершения проверки после закрытия на просмотренных страницах не указаны.
+Windows, Python 3.12.14: `check_environment.py --full` matched all 37 official package versions; `pip check` reported no broken requirements. The first full unit run executed 314 tests: 300 passed, 13 lacked public datasets and one exceeded the original five-second timing guard. After making that host-specific guard opt-in, `python -m unittest tests.test_validation -v` passed its 20 available tests, with two dataset-dependent skips. The full suite was not repeated after this test-only adjustment.
 
-## Проверка инструментов упаковки
-
-```powershell
-& .\.venv\Scripts\python.exe -X utf8 -m unittest discover -s tests -v
-```
-
-Тесты используют временные Python-файлы: проверяют состав ZIP, запрет вложенных/лишних файлов, требования, размер, ключи, синтаксис, коллизии имён и сохранение предыдущего архива. Они не обращаются к API и не заменяют запуск настоящего агента.
-
-Фактическая проверка 23.10: 10 тестов прошли; `check_environment.py --full` завершился с кодом 0, все 37 версий совпали и проверяемые импорты доступны; `pip check` не нашёл конфликтов. Сборка реального репозитория завершилась ожидаемым кодом 1 из-за отсутствующего `solution.py`. API и полный ML-проход не проверены.
+`python tools/build_submission.py` and `python tools/smoke_submission.py` succeeded. The final ZIP was 101,440 bytes; both clean tasks produced 120-row submissions with the expected identifiers and columns. Synthetic test RMSE was 1.334681; multiclass Macro F1 was 0.790759. Live API calls, full public-data runs and Linux platform acceptance were not tested here.
