@@ -30,6 +30,7 @@
 - [14 рабочих блоков и маршрут](docs/EXECUTION_ORDER.md)
 - [Вводные по ролям](docs/TEAM_CONTEXT.md)
 - [Материалы и ограничения](docs/MATERIALS.md)
+- [Окружение, команды сборки ZIP и проверка запуска](docs/RUNBOOK.md)
 - [Данные и расположение файлов](docs/DATA_SETUP.md)
 - [Правила взаимодействия](docs/WORKFLOW.md)
 - [Попытки и выбор private-версии](docs/SUBMISSIONS.md)
