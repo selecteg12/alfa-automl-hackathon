@@ -4,7 +4,7 @@
 
 **From a task description to a validated submission, with an LLM directing the experiments.**
 
-A team project from the **Alfa-Future Hackathon 2026**, combining autonomous tabular machine learning with a reproducible delivery workflow. The agent reads `task.md`, inspects the supplied data, chooses a task definition and validation strategy, trains competing models, and writes `submission.csv`.
+A team project from the **Alfa-Future Hackathon 2026**, built around an LLM-controlled experiment loop and a reproducible submission package. The agent reads `task.md`, inspects the supplied data, chooses a task definition and validation strategy, trains competing models, and writes `submission.csv`.
 
 **49 / 226 private leaderboard · 55 / 226 public leaderboard · Python 3.12 · CPU only**
 
@@ -34,13 +34,13 @@ The submission history below shows the team's progress during the competition. I
 
 </details>
 
-The improvements combined entity-level target statistics, a broader model portfolio, deeper XGBoost configurations, temporal features and fixes to grouped validation. These are historical competition results, rather than scores produced by a fresh run of this repository.
+The improvements combined entity-level target statistics, a broader model portfolio, deeper XGBoost configurations, temporal features and fixes to grouped validation. These scores were recorded during the competition.
 
 ## My contribution
 
 I focused on **project coordination, environment readiness and delivery**: turning the competition requirements into a working plan, defining ownership and checkpoints, preparing the runtime, and making the submission process reproducible.
 
-The concrete deliverables in this repository include:
+My work in the repository includes:
 
 - **Environment diagnostics:** `tools/check_environment.py` checks Python and pinned dependencies, with an optional explicit API check.
 - **Submission packaging:** `tools/build_submission.py` builds a deterministic ZIP, checks the platform's flat file layout, preserves the official requirements and reports its SHA256.
@@ -144,7 +144,7 @@ Tests use synthetic data and scripted or mocked LLM responses. They cover the co
 
 Tests requiring the original public datasets are skipped when those files are absent. Grouped-validation correctness is always checked; set `ML_GROUP_SPLIT_MAX_SECONDS` to add a host-specific timing limit for its 50,000-row benchmark.
 
-The external-task harness in `tests/external_tasks.py` supports separate generalization experiments. It downloads datasets during preparation and keeps them outside Git. The chart below records the historical 12-task comparison; it is not a new benchmark run.
+Use `tests/external_tasks.py` for experiments on unfamiliar datasets. It downloads the data during preparation and keeps it outside Git. The chart below shows the earlier 12-task comparison.
 
 ![Historical comparison: the newer version won on nine tasks and the older version on three](assets/external_tasks.png)
 
@@ -152,9 +152,9 @@ The external-task harness in `tests/external_tasks.py` supports separate general
 
 The competition environment allowed **8 CPU cores, 32 GB RAM, 30 GB disk and up to 3 hours per task**, without a GPU. Submissions were limited to **100 MB**, and only root-level `.py` files and the supplied `requirements.txt` were copied into the task environment. The solution cannot install dependencies or download datasets during evaluation.
 
-Training uses the supplied task data. The implementation focuses on supervised tabular problems; ranking, unsupervised learning and arbitrary output schemas are not established capabilities. Results depend on the task description, validation choice and available budget. A safety submission is an availability measure and can contain constant predictions.
+Training uses the supplied task data. The implementation focuses on supervised tabular problems; ranking, unsupervised learning and arbitrary output schemas are not established capabilities. Results depend on the task description, validation choice and available budget. The initial safety submission can contain constant predictions.
 
-The historical leaderboard and external-dataset results are retained as competition evidence. Local offline checks do not establish live API compatibility, Linux platform acceptance or a repeat of those scores.
+Offline checks cover the local ML workflow. Live API compatibility and Linux platform acceptance require separate runs; the leaderboard scores above come from the competition.
 
 ## Repository guide
 
