@@ -1,3 +1,5 @@
+**English** | [Русский](README.ru.md)
+
 # Alfa AutoML Agent
 
 **From a task description to a validated submission, with an LLM directing the experiments.**
