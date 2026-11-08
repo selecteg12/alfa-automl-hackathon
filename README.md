@@ -38,7 +38,7 @@ The improvements combined entity-level target statistics, a broader model portfo
 
 ## My contribution
 
-I focused on **project coordination, environment readiness and delivery**: turning the competition requirements into a working plan, defining ownership and checkpoints, preparing the runtime, and making the submission process reproducible.
+I was the **PM for a five-person team**. I broke the hackathon requirements into 14 tasks, assigned owners and set checkpoints. I owned environment readiness and coordinated submission prep.
 
 My work in the repository includes:
 
@@ -49,6 +49,10 @@ My work in the repository includes:
 - **Team workflow:** the original 14 delivery blocks, role assignments, platform constraints and submission rules remain in `docs/` and `planning/`.
 
 This was a five-person effort. Ivan developed the LLM controller and orchestration; Yura developed the ML pipeline and its reliability; Artyom worked on data analysis and input variations; Maxim performed independent checks; I coordinated delivery and prepared the environment and packaging workflow. The model results above belong to the team.
+
+[Team plan](docs/EXECUTION_ORDER.md) · [Environment and packaging](docs/tasks/current/A03.md) · [First submission](docs/tasks/current/A08.md) · [Final delivery](docs/tasks/current/A13.md)
+
+![Hackathon work plan with tasks, owners and deadlines](assets/work-plan.png)
 
 ## How the agent works
 
